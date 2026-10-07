@@ -1,0 +1,219 @@
+import type { NextRequest } from "next/server";
+import {
+  findLeadByEmail,
+  insertLead,
+  isDbConfigured,
+  type LeadRecord,
+} from "@/lib/db";
+import {
+  isEmailConfigured,
+  sendLeadNotification,
+  sendUserConfirmationEmail,
+} from "@/lib/email";
+import {
+  normalizeIndianMobile,
+  splitFullName,
+  validateEmail,
+  validateFullName,
+  validateMobile,
+} from "@/lib/validation";
+
+function getClientIp(request: NextRequest): string | null {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0].trim().slice(0, 45);
+  return request.headers.get("x-real-ip")?.slice(0, 45) || null;
+}
+
+function str(value: unknown): string | null {
+  const s = (value ?? "").toString().trim();
+  return s === "" ? null : s.slice(0, 500);
+}
+
+function buildRecord(body: Record<string, unknown>, ip: string | null): LeadRecord {
+  // Accept both NMIMS shape (name/state/admission_timeline) and onlinemba shape (fname/lname/location)
+  let fname: string | null = str(body.fname);
+  let lname: string | null = str(body.lname);
+  const fullName = str(body.name);
+  if ((!fname || !lname) && fullName) {
+    const split = splitFullName(fullName);
+    fname = fname ?? split.fname;
+    lname = lname ?? split.lname;
+  }
+
+  const location = str(body.location) ?? str(body.state);
+  const admissionTimeline =
+    str(body.admission_timeline) ??
+    str(body.admissionTimeline) ??
+    // backward compat: leads submitted before the field was renamed
+    str(body.work_experience) ??
+    str(body.experience) ??
+    null;
+
+  const rawPhone = str(body.phone) ?? str(body.mobile);
+  const mobile = rawPhone ? normalizeIndianMobile(rawPhone) : null;
+
+  return {
+    first_name: fname,
+    last_name: lname,
+    email: str(body.email),
+    mobile,
+    education_level: str(body.education_level),
+    admission_timeline: admissionTimeline,
+    location,
+    cta_source: str(body.cta_source),
+    medium: str(body.medium),
+    utm_source: str(body.utm_source),
+    utm_medium: str(body.utm_medium),
+    utm_campaign: str(body.utm_campaign),
+    utm_content: str(body.utm_content),
+    utm_id: str(body.utm_id),
+    utm_keyword: str(body.utm_keyword),
+    utm_term: str(body.utm_term),
+    utm_adgroup: str(body.utm_adgroup),
+    gclid: str(body.gclid),
+    fbclid: str(body.fbclid),
+    gad_source: str(body.gad_source),
+    msclkid: str(body.msclkid),
+    landing_page: str(body.landing_page) ?? "nmims-onlinemba-lp",
+    page_url: str(body.page_url),
+    referrer: str(body.referrer),
+    user_agent: str(body.user_agent),
+    ga_cookie: str(body._ga),
+    fbc_cookie: str(body._fbc),
+    fbp_cookie: str(body._fbp),
+    gcl_aw_cookie: str(body._gcl_aw),
+    ei_sid_cookie: str(body._ei_sid),
+    event: str(body.event) || "form_submit",
+    event_time: Number.isFinite(Number(body.timestamp))
+      ? Number(body.timestamp)
+      : Math.floor(Date.now() / 1000),
+    ip_address: ip,
+  };
+}
+
+export async function POST(request: NextRequest) {
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { status: false, message: "Invalid request body." },
+      { status: 400 }
+    );
+  }
+
+  // Normalise name: prefer full `name`, fall back to fname+lname
+  const nameValue =
+    (body.name ?? [body.fname, body.lname].filter(Boolean).join(" "))
+      .toString()
+      .trim();
+
+  const validationError =
+    validateFullName(nameValue) ||
+    validateEmail(str(body.email) || "") ||
+    validateMobile(
+      body.phone || body.mobile
+        ? normalizeIndianMobile(String(body.phone ?? body.mobile))
+        : ""
+    ) ||
+    (!(body.location || body.state || "").toString().trim() &&
+      "Please select your state.") ||
+    (!(body.education_level || "").toString().trim() &&
+      "Please select your highest qualification.");
+
+  if (validationError) {
+    return Response.json(
+      { status: false, message: validationError },
+      { status: 400 }
+    );
+  }
+
+  const lead = buildRecord(body, getClientIp(request));
+
+  let leadId: number | string | null = null;
+
+  if (isDbConfigured()) {
+    try {
+      const existing = await findLeadByEmail(lead.email as string);
+      if (existing) {
+        return Response.json(
+          {
+            status: false,
+            message:
+              "This email ID has already been used to submit an enquiry. Please use a different email ID.",
+          },
+          { status: 409 }
+        );
+      }
+    } catch (err) {
+      console.error("Duplicate check failed:", err);
+    }
+
+    try {
+      const inserted = await insertLead(lead);
+      leadId = (inserted as { id?: number | string })?.id ?? null;
+    } catch (err) {
+      console.error("Failed to save lead:", err);
+      return Response.json(
+        {
+          status: false,
+          message:
+            "Unable to submit your enquiry right now. Please try again.",
+        },
+        { status: 500 }
+      );
+    }
+  } else {
+    console.warn(
+      "SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set - lead not persisted."
+    );
+  }
+
+  const emailStatus: Array<{
+    kind: string;
+    ok: boolean;
+    id?: string;
+    error?: unknown;
+  }> = [];
+
+  if (isEmailConfigured()) {
+    const [adminResult, userResult] = await Promise.allSettled([
+      sendLeadNotification(lead),
+      sendUserConfirmationEmail(lead),
+    ]);
+
+    const summarize = (
+      kind: string,
+      result: PromiseSettledResult<Awaited<ReturnType<typeof sendLeadNotification>>>
+    ) =>
+      result.status === "fulfilled"
+        ? { kind, ok: true, id: result.value?.id }
+        : {
+            kind,
+            ok: false,
+            error:
+              result.reason instanceof Error
+                ? `${result.reason.name}: ${result.reason.message}`
+                : String(result.reason),
+          };
+
+    emailStatus.push(
+      summarize("admin", adminResult),
+      summarize("user", userResult)
+    );
+
+    for (const entry of emailStatus) {
+      if (!entry.ok) {
+        console.error(`Failed to send ${entry.kind} email:`, entry.error);
+      }
+    }
+  } else {
+    console.warn("RESEND_API_KEY not set - emails skipped.");
+    emailStatus.push(
+      { kind: "admin", ok: false, error: "emails skipped (no RESEND_API_KEY)" },
+      { kind: "user", ok: false, error: "emails skipped (no RESEND_API_KEY)" }
+    );
+  }
+
+  return Response.json({ status: true, id: leadId, emailStatus });
+}
