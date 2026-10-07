@@ -46,8 +46,7 @@ export const EDUCATION_LEVELS = [
 ];
 
 export const ADMISSION_TIMELINE_OPTIONS = [
+  "ASAP",
   "This Week",
   "This Month",
-  "Within Six Months",
-  "Next Session",
 ];
