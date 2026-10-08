@@ -18,17 +18,19 @@ const pointers = [
 
 export default function HeroSection() {
   return (
-    <section className="bg-[#e2dcfe] overflow-hidden">
-      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative bg-[#e2dcfe] overflow-hidden lg:bg-fixed lg:bg-no-repeat lg:bg-[length:40%_auto] lg:bg-[position:center_120px] lg:bg-[url(/images/banner4.webp)]">
+      {/* Fixed-background overlay (desktop only) — solid behind text, fading out so the image stays visible */}
+      <div className="hidden lg:block absolute inset-0 "/>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
 
         {/* MAIN HERO */}
         <div
           className="
             grid
             grid-cols-1
-            lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.95fr)_390px]
+            lg:grid-cols-[minmax(0,1fr)_390px]
             gap-4
-            lg:gap-2
+            lg:gap-10
             items-center
             min-h-[610px]
             py-8
@@ -36,7 +38,7 @@ export default function HeroSection() {
           "
         >
           {/* ================= LEFT CONTENT ================= */}
-          <div className="relative z-10 min-w-0 lg:pr-4">
+          <div className="relative z-20 min-w-0 lg:pr-4">
 
             <h1
               className="
@@ -63,13 +65,15 @@ export default function HeroSection() {
                 italic
                 text-[19px]
                 xl:text-[21px]
-                leading-[1.45]
+                leading-[1.15]
+                font-medium
                 mt-8
                 mb-2
                 max-sm:text-[17px]
+                max-w-sm
               "
             >
-              Globally Recognised & Future-Ready Online MBA
+              Advance Your Career with a Globally Recognised Online MBA
             </p>
 
             <p
@@ -81,7 +85,7 @@ export default function HeroSection() {
                 mb-5
               "
             >
-              UGC-DEB Entitled&nbsp; || &nbsp;AICTE-Approved&nbsp; || &nbsp;NAAC A++
+              UGC-DEB Entitled || AICTE-Approved || NAAC A++
             </p>
 
            {/* POINTERS */}
@@ -132,7 +136,7 @@ export default function HeroSection() {
 </ul>
           </div>
 
-          {/* ================= CENTER IMAGE ================= */}
+          {/* ================= CENTER IMAGE (mobile only — desktop uses it as fixed background) ================= */}
           <div
             className="
               relative
@@ -140,11 +144,9 @@ export default function HeroSection() {
               items-center
               justify-center
               h-[430px]
-              lg:h-[570px]
-              xl:h-[620px]
+              lg:hidden
               min-w-0
               -mx-4
-              lg:mx-0
             "
           >
             <Image
@@ -161,7 +163,6 @@ export default function HeroSection() {
               className="
                 absolute
                 w-[400px]
-                lg:w-[620px]
                 max-w-none
                 h-auto
                 object-contain

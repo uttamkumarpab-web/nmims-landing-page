@@ -12,7 +12,7 @@ export function FloatingCtas() {
         id="cta-floating-apply-now"
         label="Floating Apply Now"
         intent="apply"
-        className="bg-[#d02f38] text-white font-bold text-[15px] tracking-[0.5px] [writing-mode:vertical-rl] px-3 py-[22px] rounded-r-lg shadow-[2px_2px_12px_rgba(0,0,0,0.25)] hover:opacity-90"
+        className="bg-[#d02f38] text-white font-bold text-[15px] tracking-[0.5px] [writing-mode:vertical-rl] px-3 py-[12px] rounded-r-lg shadow-[2px_2px_12px_rgba(0,0,0,0.25)] hover:opacity-90"
       >
         Apply Now
       </OpenFormButton>
@@ -20,7 +20,7 @@ export function FloatingCtas() {
         id="cta-floating-download-brochure"
         label="Floating Download Brochure"
         intent="brochure"
-        className="bg-[#1c3150] text-white font-bold text-[15px] tracking-[0.5px] [writing-mode:vertical-rl] px-3 py-[22px] rounded-r-lg shadow-[2px_2px_12px_rgba(0,0,0,0.25)] hover:opacity-90"
+        className="bg-[#1c3150] text-white font-bold text-[15px] tracking-[0.5px] [writing-mode:vertical-rl] px-3 py-[12px] rounded-r-lg shadow-[2px_2px_12px_rgba(0,0,0,0.25)] hover:opacity-90"
       >
         Download Brochure
       </OpenFormButton>

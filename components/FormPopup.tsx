@@ -65,7 +65,7 @@ export default function FormPopup({ open, onClose, title, intent }: FormPopupPro
       aria-label={modalTitle}
     >
       <div
-        className="relative my-8 w-full max-w-lg"
+        className="relative my-8 w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
         <button

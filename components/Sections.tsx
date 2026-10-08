@@ -93,7 +93,7 @@ const specialisations = [
 export function FutureReady() {
   return (
     <section className="mt-10">
-      <div className="max-w-[1300px] mx-auto px-4 sm:px-6 grid grid-cols-[380px_1fr] gap-10 items-center max-lg:grid-cols-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 grid grid-cols-[380px_1fr] gap-10 items-center max-lg:grid-cols-1">
         <div>
           <Image
             src="/images/bfr_img1.jpg"
@@ -139,7 +139,7 @@ export function FutureReady() {
 export function LeadFuture() {
   return (
     <section className="bg-[#36183e] mt-12 py-14">
-      <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         <h2 className="text-center text-white text-[30px] sm:text-[34px] font-bold">
           Why Choose NMIMS Online MBA?
         </h2>
@@ -183,7 +183,7 @@ export function LeadFuture() {
 export function Specialisations() {
   return (
     <section className="bg-[#1c1c2b] py-14">
-      <div className="max-w-[1300px] mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         <h2 className="text-center text-white text-[32px] font-bold">
           NMIMS Online MBA Specializations
         </h2>
@@ -239,7 +239,7 @@ export function Specialisations() {
 export function ProgrammeDetails() {
   return (
     <section className="bg-[#24243e] py-14">
-      <div className="max-w-[1300px] mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         <h2 className="text-center text-white text-[32px] font-bold">
           Programme Details
         </h2>
@@ -303,7 +303,7 @@ export function Excellence() {
   ];
   return (
     <section className="bg-white py-[50px]">
-      <div className="max-w-[1300px] mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         <h2 className="text-center text-[30px] text-[#d1b16f] font-semibold mb-9 relative pb-3.5">
           NMIMS Excellence at a Glance
           <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[54px] h-[3px] bg-[#d1b16f]" />
@@ -327,7 +327,7 @@ export function AboutAndCampus() {
   return (
     <>
       <section className="bg-[#2a1230] py-[90px] bg-cover bg-center" style={{ backgroundImage: "url('/images/about_nmims_bg.jpg')" }}>
-        <div className="max-w-[1300px] mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
           <h2 className="text-center text-[#d1b16f] text-[30px] sm:text-[42px] font-semibold relative pb-4 mb-10">
             About NMIMS CDOE
             <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60px] h-[3px] bg-[#d1b16f]" />
@@ -371,7 +371,7 @@ export function AboutAndCampus() {
       </section>
 
       <section className="bg-white py-[60px]">
-        <div className="max-w-[1300px] mx-auto px-6 grid gap-[50px] items-center lg:grid-cols-[1.4fr_1fr]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 grid gap-[50px] items-center lg:grid-cols-[1.4fr_1fr]">
           <div>
             <h2 className="text-[38px] max-sm:text-[28px] text-[#36183e] font-bold relative pb-2.5 mb-7">
               NMIMS CDOE Mumbai Address:
@@ -416,7 +416,7 @@ export function DisclaimerFooter() {
   return (
     <>
       <section className="bg-white pt-[30px] pb-[50px]">
-        <div className="max-w-[1300px] mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
           <p className="text-[#333] leading-6 text-[14px]">
             <strong>Disclaimer:</strong> As an Affiliate Enquiry Partner (AEP)
             of NMIMS CDOE, we display and showcase programme information of
